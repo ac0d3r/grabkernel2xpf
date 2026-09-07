@@ -1,0 +1,12 @@
+[submodule "external/XPF"]
+	path = external/XPF
+	url = https://github.com/opa334/XPF.git
+	ignore = dirty
+[submodule "external/libgrabkernel2"]
+	path = external/libgrabkernel2
+	url = https://github.com/alfiecg24/libgrabkernel2.git
+	ignore = dirty
+[submodule "external/partial"]
+	path = external/partial
+	url = https://github.com/ac0d3r/partial.git
+	ignore = dirty

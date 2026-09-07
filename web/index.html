@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>grabkernel2xpf</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <div>
+      <h1>grabkernel2xpf</h1>
+      <p>Powered by libgrabkernel2 & XPF</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <form id="form">
+        <label>
+          OS
+          <select id="os">
+            <option value="iOS">iOS</option>
+            <option value="iPadOS">iPadOS</option>
+          </select>
+        </label>
+        <label>
+          Identifier
+          <select id="identifier" required></select>
+        </label>
+        <label>
+          Version Range
+          <input id="verRange" type="text" placeholder="15 or 15-17" autocomplete="off" spellcheck="false">
+        </label>
+        <label>
+          Build
+          <select id="build" required></select>
+        </label>
+        <label>
+          Board
+          <select id="board" required></select>
+        </label>
+        <div class="row checks">
+          <label class="check"><input type="checkbox" id="refresh"> Redownload</label>
+          <label class="check"><input type="checkbox" id="skipExisting" checked> Skip existing</label>
+        </div>
+        <div class="row actions">
+          <button type="submit" id="run">Download &amp; extract</button>
+        </div>
+      </form>
+      <div id="status" class="status" hidden></div>
+      <pre id="log" class="log" hidden></pre>
+    </section>
+
+    <section class="panel">
+      <div id="historyWrap" class="history" hidden>
+        <div class="result-head">
+          <h2>History</h2>
+          <button type="button" id="exportPlist">Export plist</button>
+        </div>
+        <div id="history" class="history-tree"></div>
+      </div>
+      <div id="detailWrap" class="detail" hidden>
+        <h2>Offsets</h2>
+        <dl id="meta" class="meta"></dl>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Name</th><th>Value</th></tr>
+            </thead>
+            <tbody id="offsets"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
