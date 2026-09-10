@@ -133,9 +133,10 @@ async function onDeviceChange() {
   allBuilds = [];
   buildEl.innerHTML = "";
   if (!id) return;
-  allBuilds = await getJSON(
+  const builds = await getJSON(
     "/api/builds?os=" + encodeURIComponent(osEl.value) + "&identifier=" + encodeURIComponent(id)
   );
+  allBuilds = Array.isArray(builds) ? builds : [];
   fillBuilds();
   syncExtractMode();
 }

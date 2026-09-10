@@ -19,7 +19,9 @@ XPF_CFLAGS := -O2 -framework Foundation -framework Security -lcompression \
 	-DDER_MULTIBYTE_TAGS=1 -D__unused="__attribute__((unused))" -DDER_TAG_SIZE=8 \
 	-Wno-variadic-macros -Wno-multichar -Wno-four-char-constants -Wno-unused-parameter
 
-.PHONY: all deps build grabkernel xpf clean
+DIST := grabkernel2xpf.tar
+
+.PHONY: all deps build grabkernel xpf server pack clean
 
 all: build
 
@@ -47,10 +49,17 @@ grabkernel: deps
 		-o $(BIN)/grabkernel
 	codesign -f -s - $(BIN)/grabkernel
 
-build: xpf grabkernel
+server:
+	go build -trimpath -ldflags="-s -w" -o server ./cmd/server
+
+build: xpf grabkernel server
+
+pack:
+	mkdir -p data
+	COPYFILE_DISABLE=1 tar --exclude='.*' -cf $(DIST) server web $(BIN) data install-launchd.sh
 
 clean:
-	rm -rf $(BIN)
+	rm -rf $(BIN) server $(DIST)
 	-$(MAKE) -C $(XPF) clean
 	-$(MAKE) -C $(GRAB) clean
 	-$(MAKE) -C $(PARTIAL) clean

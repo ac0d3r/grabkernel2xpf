@@ -224,6 +224,9 @@ func (c *Client) Builds(osName, identifier string) ([]Build, error) {
 		seen[row.b.Build] = true
 		out = append(out, row.b)
 	}
+	if out == nil {
+		out = []Build{}
+	}
 	return out, nil
 }
 

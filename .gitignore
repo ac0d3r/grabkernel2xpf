@@ -33,6 +33,9 @@ go.work.sum
 
 .DS_Store
 
+server
+server.log
+grabkernel2xpf.tar
 data/
 external/_bin/
 external/**/output/
