@@ -3,6 +3,7 @@ package external
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -29,6 +30,16 @@ type Tools struct {
 
 func New(dir string) *Tools {
 	return &Tools{Dir: dir}
+}
+
+func (t *Tools) Ready() error {
+	if _, err := t.bin("grabkernel"); err != nil {
+		return err
+	}
+	if _, err := t.bin("xpf_test"); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (t *Tools) bin(name string) (string, error) {
@@ -71,7 +82,7 @@ type XPFResult struct {
 	Output        string            `json:"-"`
 }
 
-func (t *Tools) XPF(kernel, sptm, txm string) (*XPFResult, error) {
+func (t *Tools) XPF(ctx context.Context, kernel, sptm, txm string) (*XPFResult, error) {
 	bin, err := t.bin("xpf_test")
 	if err != nil {
 		return nil, err
@@ -83,23 +94,32 @@ func (t *Tools) XPF(kernel, sptm, txm string) (*XPFResult, error) {
 	if txm != "" {
 		args = append(args, txm)
 	}
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 
 	xpfMu.Lock()
 	defer xpfMu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 
-	cmd := exec.Command(bin, args...)
+	cmd := exec.CommandContext(ctx, bin, args...)
 	var buf bytes.Buffer
 	cmd.Stdout = &buf
 	cmd.Stderr = &buf
 	runErr := cmd.Run()
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	out := buf.String()
 	res, parseErr := ParseXPF(out)
 	if runErr != nil {
-		if res != nil && strings.TrimSpace(res.KernelVersion) != "" {
+		if strings.TrimSpace(res.KernelVersion) != "" {
 			return res, fmt.Errorf("xpf_test: %w", runErr)
 		}
 		if msg := xpfErrorLine(out); msg != "" {
-			return res, fmt.Errorf("%s", msg)
+			return res, errors.New(msg)
 		}
 		return res, fmt.Errorf("xpf_test: %w\n%s", runErr, strings.TrimSpace(out))
 	}
@@ -108,9 +128,9 @@ func (t *Tools) XPF(kernel, sptm, txm string) (*XPFResult, error) {
 	}
 	if len(res.Offsets) == 0 {
 		if msg := xpfErrorLine(out); msg != "" {
-			return res, fmt.Errorf("%s", msg)
+			return res, errors.New(msg)
 		}
-		return res, fmt.Errorf("xpf_test produced no offsets")
+		return res, errors.New("xpf_test produced no offsets")
 	}
 	return res, nil
 }
@@ -149,7 +169,7 @@ func ParseXPF(out string) (*XPFResult, error) {
 		}
 	}
 	if xpfErr != "" && len(res.Offsets) == 0 {
-		return res, fmt.Errorf("%s", xpfErr)
+		return res, errors.New(xpfErr)
 	}
 	return res, nil
 }

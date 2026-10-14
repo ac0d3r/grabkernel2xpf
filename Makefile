@@ -21,7 +21,7 @@ XPF_CFLAGS := -O2 -framework Foundation -framework Security -lcompression \
 
 DIST := grabkernel2xpf.tar
 
-.PHONY: all deps build grabkernel xpf server pack clean
+.PHONY: all deps build grabkernel xpf cli pack clean
 
 all: build
 
@@ -49,17 +49,16 @@ grabkernel: deps
 		-o $(BIN)/grabkernel
 	codesign -f -s - $(BIN)/grabkernel
 
-server:
-	go build -trimpath -ldflags="-s -w" -o server ./cmd/server
+cli:
+	go build -trimpath -ldflags="-s -w" -o grabkernel2xpf ./cmd/grabkernel2xpf
 
-build: xpf grabkernel server
+build: xpf grabkernel cli
 
 pack:
-	mkdir -p data
-	COPYFILE_DISABLE=1 tar --exclude='.*' -cf $(DIST) server web $(BIN) data install-launchd.sh
+	COPYFILE_DISABLE=1 tar --exclude='.*' -cf $(DIST) grabkernel2xpf $(BIN)
 
 clean:
-	rm -rf $(BIN) server $(DIST)
+	rm -rf $(BIN) grabkernel2xpf $(DIST)
 	-$(MAKE) -C $(XPF) clean
 	-$(MAKE) -C $(GRAB) clean
 	-$(MAKE) -C $(PARTIAL) clean
