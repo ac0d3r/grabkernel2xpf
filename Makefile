@@ -19,9 +19,7 @@ XPF_CFLAGS := -O2 -framework Foundation -framework Security -lcompression \
 	-DDER_MULTIBYTE_TAGS=1 -D__unused="__attribute__((unused))" -DDER_TAG_SIZE=8 \
 	-Wno-variadic-macros -Wno-multichar -Wno-four-char-constants -Wno-unused-parameter
 
-DIST := grabkernel2xpf.tar
-
-.PHONY: all deps build grabkernel xpf cli pack clean
+.PHONY: all deps build grabkernel xpf cli clean
 
 all: build
 
@@ -54,11 +52,8 @@ cli:
 
 build: xpf grabkernel cli
 
-pack:
-	COPYFILE_DISABLE=1 tar --exclude='.*' -cf $(DIST) grabkernel2xpf $(BIN)
-
 clean:
-	rm -rf $(BIN) grabkernel2xpf $(DIST)
+	rm -rf $(BIN) grabkernel2xpf
 	-$(MAKE) -C $(XPF) clean
 	-$(MAKE) -C $(GRAB) clean
 	-$(MAKE) -C $(PARTIAL) clean
